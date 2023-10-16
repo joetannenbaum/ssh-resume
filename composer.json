@@ -1,0 +1,32 @@
+{
+    "name": "joetannenbaum/chewie",
+    "description": "PHP library to create custom TUIs",
+    "type": "library",
+    "require": {
+        "laravel/prompts": "^0.1.11",
+        "nunomaduro/termwind": "^1.15",
+        "react/event-loop": "^1.4",
+        "react/child-process": "^0.6.5",
+        "spatie/fork": "^1.2",
+        "react/socket": "^1.14",
+        "react/filesystem": "^0.2@dev"
+    },
+    "require-dev": {
+        "spatie/ray": "^1.39",
+        "tightenco/duster": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Chewie\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Joe Tannenbaum",
+            "email": "joe@joe.codes"
+        }
+    ]
+}
