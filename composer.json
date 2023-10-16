@@ -18,10 +18,7 @@
     "autoload": {
         "psr-4": {
             "Chewie\\": "src/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     },
     "authors": [
         {
