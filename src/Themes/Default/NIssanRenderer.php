@@ -66,9 +66,9 @@ class NissanRenderer extends Renderer
         ];
 
         $barCount = count($bars);
-        $columns = 38;
-        $highest = 30;
-        $startRedAt = $columns - 6;
+        $totalColumns = 38;
+        $highest = 20;
+        $startRedAt = $totalColumns - 6;
         $factor = $rpm->multiplier * (1 / $barCount);
         $offset = ($rpm->multiplier - 1) % $barCount;
 
@@ -76,7 +76,7 @@ class NissanRenderer extends Renderer
 
         $allBars = collect($bars);
 
-        while ($allBars->count() < $columns + $barCount) {
+        while ($allBars->count() < $totalColumns + $barCount) {
             $allBars->push(...$bars);
         }
 
@@ -84,6 +84,15 @@ class NissanRenderer extends Renderer
 
         $setCounter = 0;
         $counter = 1;
+
+        $curve = <<<CURVE
+                                      ¸¸,,..--ˆˆ--..,,¸¸
+                            ¸¸,,..--ˆˆ                  ˆˆ--..,,¸¸
+                  ¸¸,,..--ˆˆ
+        ¸¸,,..--ˆˆ
+        CURVE;
+
+        $lines->push(collect(range(1, $highest))->map(fn ($l) => ' '));
 
         foreach ($up->chunkWhile(fn ($i) => $i !== '▁') as $setIndex => $set) {
             foreach ($set as $index => $bar) {
@@ -110,6 +119,7 @@ class NissanRenderer extends Renderer
                 }
 
                 $col = $col->reverse()->values()
+                    ->map(fn ($l) => mb_str_pad($l, 2))
                     ->map(fn ($l) => $counter > $startRedAt ? $this->red($l) : $this->green($l))
                     ->map(fn ($l) => $rpm->value === $counter ? $l : $this->dim($l));
 
@@ -147,6 +157,7 @@ class NissanRenderer extends Renderer
                 }
 
                 $col = $col->reverse()->values()
+                    ->map(fn ($l) => mb_str_pad($l, 2))
                     ->map(fn ($l) => $counter > $startRedAt ? $this->red($l) : $this->green($l))
                     ->map(fn ($l) => $rpm->value === $counter ? $l : $this->dim($l));
 
@@ -159,15 +170,25 @@ class NissanRenderer extends Renderer
         }
 
         $leftCap = floor($highest * .75);
-        $leftBorder = collect(range(1, $highest))->map(fn ($i) => $i > $leftCap ? '┃' : ' ');
+        $leftBorder = collect(range(1, $highest))->map(fn ($i) => $i > $leftCap ? '┃' : ' ')->concat(['┗'])->map(fn ($l) => $prompt->carStarted ? $l : $this->dim($l));
 
         $rightCap = floor($highest * .5);
-        $rightBorder = collect(range(1, $highest))->map(fn ($i) => $i > $rightCap ? '┃' : ' ');
+        $rightBorder = collect(range(1, $highest))->map(fn ($i) => $i > $rightCap ? '┃' : ' ')->concat(['┛'])->map(fn ($l) => $prompt->carStarted ? $l : $this->dim($l));
 
-        $lines = $lines->map(fn ($l) => $l->push('━'));
+        $lines = $lines->map(function ($l) use ($prompt) {
+            $str = mb_str_pad('', mb_strlen($this->stripEscapeSequences($l->first())), '━');
 
-        $lines->prepend($leftBorder->concat(['┗']));
-        $lines->push($rightBorder->concat(['┛']));
+            if (!$prompt->carStarted) {
+                $str = $this->dim($str);
+            }
+
+            $l->push($str);
+
+            return $l;
+        });
+
+        $lines->prepend($leftBorder);
+        $lines->push($rightBorder);
 
         $lines = $lines->map(
             function ($l, $i) use (&$markers) {
@@ -179,7 +200,7 @@ class NissanRenderer extends Renderer
             }
         );
 
-        return collect($lines->shift())->zip(...$lines)->map(fn ($line) => ' ' . $line->implode($line[1] == '━' ? '━' : ' ') . ' ');
+        return collect($lines->shift())->zip(...$lines)->map(fn ($line) =>  $line->implode(''));
     }
 
     protected function generateRpmColumn(Collection $bars, $counter): Collection
@@ -202,7 +223,7 @@ class NissanRenderer extends Renderer
                 $col->push(' ');
             }
 
-            $col = $col->reverse()->values();
+            $col = $col->reverse()->values()->map(fn ($l) => mb_str_pad($l, 2));
 
             $lines->push($col);
         }
