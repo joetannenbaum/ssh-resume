@@ -189,7 +189,7 @@ class NissanRenderer extends Renderer
         $rightCap = floor($highest * .25);
         $rightBorder = collect(range(1, $highest))->map(fn ($i) => $i > $rightCap ? '┃' : ' ')->concat(['┛'])->map(fn ($l) => $prompt->carStarted ? $l : $this->dim($l));
 
-        $lines = $lines->map(function (Collection $l) use ($prompt, $curveColumns) {
+        $lines = $lines->map(function (Collection $l, $i) use ($prompt, $curveColumns, $fullBar) {
             $colWidth = mb_strlen($this->stripEscapeSequences($l->first()));
 
             $curveLine = collect();
@@ -198,11 +198,19 @@ class NissanRenderer extends Renderer
                 $curveLine->push($curveColumns->shift());
             }
 
-            $curveLine = $curveLine->count() === 1 ? $curveLine->first() : collect($curveLine->shift())->zip(...$curveLine)->map(fn ($c) => $c->implode(''));
+            $max = $curveLine->map(fn ($l) => $l->count())->max();
 
-            $curveLine = $curveLine->map(fn ($i) => $this->bold($this->red($i)));
+            $curveLine = $curveLine->map(function ($l) use ($max) {
+                $l->push(...array_fill(0, $max - $l->count(), ' '));
 
-            $l->splice(0, $curveLine->count(), $curveLine->map(fn ($i) => $prompt->carStarted ? $i : $this->dim($i)));
+                return $l;
+            });
+
+            $curveLine = $curveLine->count() === 1
+                ? $curveLine->first()
+                : collect($curveLine->shift())->zip(...$curveLine)->map(fn ($c) => $c->implode(''));
+
+            $l->splice(0, $curveLine->count(), $curveLine->map(fn ($i) => $this->red($i))->map(fn ($i) => $prompt->carStarted ? $this->bold($i) : $this->dim($i)));
 
             $str = mb_str_pad('', $colWidth, '━');
 
@@ -219,12 +227,20 @@ class NissanRenderer extends Renderer
         $lines->push($rightBorder);
 
         $lines = $lines->map(
-            function ($l, $i) use (&$markers) {
+            function ($l, $i) use (&$markers, $prompt) {
                 if ($this->stripEscapeSequences($l->get($l->count() - 2)) === '█ ') {
-                    return $l->push(array_shift($markers));
+                    $str = array_shift($markers);
+
+                    if (!$prompt->carStarted) {
+                        $str = $this->dim($str);
+                    }
+
+                    return $l->push($str . ' ');
                 }
 
-                return $l->push(' ');
+                $colWidth = mb_strlen($this->stripEscapeSequences($l->first()));
+
+                return $l->push(str_repeat(' ', $colWidth));
             }
         );
 
