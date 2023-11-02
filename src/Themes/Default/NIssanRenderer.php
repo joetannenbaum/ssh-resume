@@ -67,7 +67,7 @@ class NissanRenderer extends Renderer
 
         $barCount = count($bars);
         $totalColumns = 38;
-        $highest = 20;
+        $highest = 11;
         $startRedAt = $totalColumns - 6;
         $factor = $rpm->multiplier * (1 / $barCount);
         $offset = ($rpm->multiplier - 1) % $barCount;
@@ -86,11 +86,25 @@ class NissanRenderer extends Renderer
         $counter = 1;
 
         $curve = <<<CURVE
-                                      ¸¸,,..--ˆˆ--..,,¸¸
-                            ¸¸,,..--ˆˆ                  ˆˆ--..,,¸¸
-                  ¸¸,,..--ˆˆ
-        ¸¸,,..--ˆˆ
+                                                                ¸¸__..--ˆˆ--..__¸¸
+                                                      ¸¸__..--ˆˆ                  ˆˆ--
+                                            ¸¸__..--ˆˆ
+                                  ¸¸__..--ˆˆ
+                        ¸¸__..--ˆˆ
+              ¸¸__..--ˆˆ
+        ..--ˆˆ
         CURVE;
+
+        $curve = collect(explode("\n", $curve))->map(fn ($l) => mb_str_split($l));
+
+        $curveColumns = collect($curve->shift())
+            ->zip(...$curve)
+            ->map(
+                fn ($l) => $l->reverse()
+                    ->skipWhile(fn ($i) => $i === null || $i === ' ')
+                    ->reverse()
+                    ->map(fn ($i) => $i ?? ' ')
+            );
 
         $lines->push(collect(range(1, $highest))->map(fn ($l) => ' '));
 
@@ -169,14 +183,28 @@ class NissanRenderer extends Renderer
             $setCounter--;
         }
 
-        $leftCap = floor($highest * .75);
+        $leftCap = floor($highest * .7);
         $leftBorder = collect(range(1, $highest))->map(fn ($i) => $i > $leftCap ? '┃' : ' ')->concat(['┗'])->map(fn ($l) => $prompt->carStarted ? $l : $this->dim($l));
 
-        $rightCap = floor($highest * .5);
+        $rightCap = floor($highest * .25);
         $rightBorder = collect(range(1, $highest))->map(fn ($i) => $i > $rightCap ? '┃' : ' ')->concat(['┛'])->map(fn ($l) => $prompt->carStarted ? $l : $this->dim($l));
 
-        $lines = $lines->map(function ($l) use ($prompt) {
-            $str = mb_str_pad('', mb_strlen($this->stripEscapeSequences($l->first())), '━');
+        $lines = $lines->map(function (Collection $l) use ($prompt, $curveColumns) {
+            $colWidth = mb_strlen($this->stripEscapeSequences($l->first()));
+
+            $curveLine = collect();
+
+            while ($curveLine->count() < $colWidth) {
+                $curveLine->push($curveColumns->shift());
+            }
+
+            $curveLine = $curveLine->count() === 1 ? $curveLine->first() : collect($curveLine->shift())->zip(...$curveLine)->map(fn ($c) => $c->implode(''));
+
+            $curveLine = $curveLine->map(fn ($i) => $this->bold($this->red($i)));
+
+            $l->splice(0, $curveLine->count(), $curveLine->map(fn ($i) => $prompt->carStarted ? $i : $this->dim($i)));
+
+            $str = mb_str_pad('', $colWidth, '━');
 
             if (!$prompt->carStarted) {
                 $str = $this->dim($str);
@@ -192,7 +220,7 @@ class NissanRenderer extends Renderer
 
         $lines = $lines->map(
             function ($l, $i) use (&$markers) {
-                if ($this->stripEscapeSequences($l->get($l->count() - 2)) === '█') {
+                if ($this->stripEscapeSequences($l->get($l->count() - 2)) === '█ ') {
                     return $l->push(array_shift($markers));
                 }
 
