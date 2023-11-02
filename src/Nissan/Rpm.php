@@ -70,7 +70,7 @@ class Rpm implements DashboardComponent
 
     public function rev()
     {
-        $this->nextMultiplier = min(100, $this->nextMultiplier + $this->factor);
+        $this->nextMultiplier = min(38, $this->nextMultiplier + $this->factor);
         $this->cycles = 10;
         $this->nextValue = min(38, $this->value + rand(3, 5));
     }
@@ -79,6 +79,6 @@ class Rpm implements DashboardComponent
     {
         $this->nextMultiplier = max($this->factor, $this->nextMultiplier - $this->factor);
         $this->cycles = 10;
-        $this->nextValue = min(38, $this->value - rand(3, 5));
+        $this->nextValue = max($this->factor, $this->value - rand(3, 5));
     }
 }
