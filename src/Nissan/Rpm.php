@@ -12,6 +12,12 @@ class Rpm implements DashboardComponent
 
     public $tickCount = 0;
 
+    public $speed = 0;
+
+    public $nextSpeed = 0;
+
+    protected $speedMultiplier = 3;
+
     protected $lowerBound = 1;
 
     protected $upperBound = 20;
@@ -38,6 +44,16 @@ class Rpm implements DashboardComponent
             $this->value += $this->value < $this->nextValue ? 1 : -1;
         }
 
+        if ($this->speed !== $this->nextSpeed) {
+            $speedDiff = abs($this->speed - $this->nextSpeed);
+
+            if ($speedDiff < 3) {
+                $this->speed = $this->nextSpeed;
+            } else {
+                $this->speed += $this->speed < $this->nextSpeed ? 3 : -3;
+            }
+        }
+
         if ($this->multiplier !== $this->nextMultiplier) {
             $this->multiplier += $this->multiplier < $this->nextMultiplier ? $this->factor : -$this->factor;
         } else {
@@ -47,6 +63,7 @@ class Rpm implements DashboardComponent
                 // Cool the engine down
                 $this->nextMultiplier = max($this->carStarted ? $this->factor * 2 : $this->factor, $this->multiplier - $this->factor);
                 $this->nextValue = $this->carStarted ?  3 : 0;
+                $this->nextSpeed = 0;
             }
         }
 
@@ -71,14 +88,16 @@ class Rpm implements DashboardComponent
     public function rev()
     {
         $this->nextMultiplier = min(38, $this->nextMultiplier + $this->factor);
-        $this->cycles = 10;
         $this->nextValue = min(38, $this->value + rand(3, 5));
+        $this->nextSpeed = min(99, $this->nextValue * $this->speedMultiplier);
+        $this->cycles = 10;
     }
 
     public function brake()
     {
         $this->nextMultiplier = max($this->factor, $this->nextMultiplier - $this->factor);
-        $this->cycles = 10;
         $this->nextValue = max($this->factor, $this->value - rand(3, 5));
+        $this->nextSpeed = max(0, $this->nextValue * $this->speedMultiplier);
+        $this->cycles = 10;
     }
 }

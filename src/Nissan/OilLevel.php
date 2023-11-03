@@ -16,6 +16,10 @@ class OilLevel implements DashboardComponent
 
     protected $upperBound = 20;
 
+    public $revCount = 0;
+
+    public $carStarted = false;
+
     public function tick(): void
     {
         if ($this->value !== $this->nextValue) {
@@ -23,5 +27,26 @@ class OilLevel implements DashboardComponent
         }
 
         $this->tickCount++;
+    }
+
+    public function startCar()
+    {
+        $this->carStarted = true;
+        $this->nextValue = 10;
+    }
+
+    public function stopCar()
+    {
+        $this->carStarted = false;
+        $this->nextValue = 0;
+    }
+
+    public function rev()
+    {
+        $this->revCount++;
+
+        if ($this->revCount % 10 === 0) {
+            $this->nextValue = max(0, $this->value - 1);
+        }
     }
 }

@@ -16,6 +16,10 @@ class Fuel implements DashboardComponent
 
     protected $upperBound = 20;
 
+    public $carStarted = false;
+
+    public $revCount = 0;
+
     public function tick(): void
     {
         if ($this->value !== $this->nextValue) {
@@ -23,5 +27,26 @@ class Fuel implements DashboardComponent
         }
 
         $this->tickCount++;
+    }
+
+    public function startCar()
+    {
+        $this->carStarted = true;
+        $this->nextValue = 15;
+    }
+
+    public function stopCar()
+    {
+        $this->carStarted = false;
+        $this->nextValue = 0;
+    }
+
+    public function rev()
+    {
+        $this->revCount++;
+
+        if ($this->revCount % 7 === 0) {
+            $this->nextValue = max(0, $this->value - 1);
+        }
     }
 }

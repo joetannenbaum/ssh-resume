@@ -68,23 +68,21 @@ class Nissan extends Prompt
                 $this->carStarted = !$this->carStarted;
 
                 if ($this->carStarted) {
-                    $this->components[Fuel::class]->nextValue = 15;
-                    $this->components[EngineTemp::class]->nextValue = 3;
-                    $this->components[OilLevel::class]->nextValue = 10;
-                    $this->components[Battery::class]->nextValue = 12;
-                    $this->components[Rpm::class]->startCar();
+                    foreach ($this->components as $component) {
+                        $component->startCar();
+                    }
                 } else {
-                    $this->components[Fuel::class]->nextValue = 0;
-                    $this->components[EngineTemp::class]->nextValue = 0;
-                    $this->components[OilLevel::class]->nextValue = 0;
-                    $this->components[Battery::class]->nextValue = 0;
-                    $this->components[Rpm::class]->stopCar();
+                    foreach ($this->components as $component) {
+                        $component->stopCar();
+                    }
                 }
             }
 
             if ($this->carStarted) {
                 if ($key === ' ') {
-                    $this->components[Rpm::class]->rev();
+                    foreach ($this->components as $component) {
+                        $component->rev();
+                    }
                 }
 
                 if ($key === 'b') {
