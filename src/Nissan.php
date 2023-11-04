@@ -3,6 +3,7 @@
 namespace Chewie;
 
 use Chewie\Concerns\CreatesAnAltScreen;
+use Chewie\Concerns\Loops;
 use Chewie\Concerns\SetsUpAndResets;
 use Chewie\Nissan\Battery;
 use Chewie\Nissan\EngineTemp;
@@ -20,8 +21,7 @@ class Nissan extends Prompt
     use RegistersThemes;
     use TypedValue;
     use SetsUpAndResets;
-
-    public array $components = [];
+    use Loops;
 
     public int $sleepFor = 50_000;
 
@@ -31,20 +31,18 @@ class Nissan extends Prompt
     {
         $this->registerTheme(NissanRenderer::class);
 
-        collect([
-            Fuel::class,
-            EngineTemp::class,
-            OilLevel::class,
-            Battery::class,
-            Rpm::class,
-        ])->each(fn ($component) => $this->components[$component] = new $component());
+        $this->registerComponent(Fuel::class);
+        $this->registerComponent(EngineTemp::class);
+        $this->registerComponent(OilLevel::class);
+        $this->registerComponent(Battery::class);
+        $this->registerComponent(Rpm::class);
 
-        // $this->createAltScreen();
+        $this->createAltScreen();
     }
 
     public function __destruct()
     {
-        // $this->exitAltScreen();
+        $this->exitAltScreen();
     }
 
     public function run()
@@ -54,55 +52,45 @@ class Nissan extends Prompt
 
     protected function showDashboard()
     {
-        while (true) {
-            $this->render();
+        $this->loop($this->runLoop(...));
+    }
 
-            $key = KeyPressListener::once();
+    protected function runLoop()
+    {
+        $this->render();
 
-            if ($key === Key::CTRL_C) {
-                $this->terminal()->exit();
-            }
+        $key = KeyPressListener::once();
 
+        if ($key === Key::CTRL_C) {
+            $this->terminal()->exit();
+        }
 
-            if ($key === Key::ENTER) {
-                $this->carStarted = !$this->carStarted;
-
-                if ($this->carStarted) {
-                    foreach ($this->components as $component) {
-                        $component->startCar();
-                    }
-                } else {
-                    foreach ($this->components as $component) {
-                        $component->stopCar();
-                    }
-                }
-            }
+        if ($key === Key::ENTER) {
+            $this->carStarted = !$this->carStarted;
 
             if ($this->carStarted) {
-                if ($key === ' ') {
-                    foreach ($this->components as $component) {
-                        $component->rev();
-                    }
+                foreach ($this->components as $component) {
+                    $component->startCar();
                 }
-
-                if ($key === 'b') {
-                    $this->components[Rpm::class]->brake();
+            } else {
+                foreach ($this->components as $component) {
+                    $component->stopCar();
                 }
             }
+        }
 
+        if (!$this->carStarted) {
+            return;
+        }
+
+        if ($key === ' ') {
             foreach ($this->components as $component) {
-                if (is_array($component)) {
-                    foreach ($component as $c) {
-                        $c->tick();
-                    }
-
-                    continue;
-                }
-
-                $component->tick();
+                $component->rev();
             }
+        }
 
-            usleep($this->sleepFor);
+        if ($key === 'b') {
+            $this->components[Rpm::class]->brake();
         }
     }
 
