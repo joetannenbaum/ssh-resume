@@ -50,7 +50,7 @@ class NissanRenderer extends Renderer
 
     protected function rpmLines(Nissan $prompt)
     {
-        $rpm = $prompt->components[Rpm::class];
+        $rpm = $prompt->component(Rpm::class);
 
         $lines = collect();
 
@@ -324,7 +324,7 @@ class NissanRenderer extends Renderer
 
     protected function batteryLines(Nissan $prompt): Collection
     {
-        $gauge = $prompt->components[Battery::class];
+        $gauge = $prompt->component(Battery::class);
 
         $top = '┏ ' . $this->bold('   ');
         $belowTop =  '┣ ' . $this->bold('90 ');
@@ -348,7 +348,7 @@ class NissanRenderer extends Renderer
 
     protected function oilLevelLines(Nissan $prompt): Collection
     {
-        $gauge = $prompt->components[OilLevel::class];
+        $gauge = $prompt->component(OilLevel::class);
 
         $ninety  = '┏ ' . $this->bold('90 ');
         $fortyFive = '┣ ' . $this->bold('45 ');
@@ -370,7 +370,7 @@ class NissanRenderer extends Renderer
 
     protected function fuelLines(Nissan $prompt): Collection
     {
-        $gauge = $prompt->components[Fuel::class];
+        $gauge = $prompt->component(Fuel::class);
 
         $full = '┏ ' . $this->bold('F  ');
         $half = '┣ ' . $this->bold('½  ');
@@ -393,7 +393,7 @@ class NissanRenderer extends Renderer
 
     protected function engineTempLines(Nissan $prompt): Collection
     {
-        $gauge = $prompt->components[EngineTemp::class];
+        $gauge = $prompt->component(EngineTemp::class);
 
         $top = '┏ ' . $this->bold('270');
         $bottom = '┗ ' . $this->bold('120');
