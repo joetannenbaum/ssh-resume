@@ -9,7 +9,10 @@
         "react/child-process": "^0.6.5",
         "spatie/fork": "^1.2",
         "react/socket": "^1.14",
-        "react/filesystem": "^0.2@dev"
+        "react/filesystem": "^0.2@dev",
+        "illuminate/http": "^10.29",
+        "guzzlehttp/guzzle": "^7.8",
+        "jwilsson/spotify-web-api-php": "^6.0"
     },
     "require-dev": {
         "spatie/ray": "^1.39",
@@ -17,7 +20,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Chewie\\": "src/"
+            "Chewie\\": "src/",
+            "ChewieLab\\": "lab/src/"
         }
     },
     "authors": [
