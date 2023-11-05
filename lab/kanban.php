@@ -1,6 +1,6 @@
 <?php
 
-use Chewie\Kanban;
+use ChewieLab\Kanban;
 
 require __DIR__ . '/../vendor/autoload.php';
 

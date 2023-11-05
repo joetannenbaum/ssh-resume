@@ -1,7 +1,7 @@
 <?php
 
-use ChewieLab\Nissan;
+use ChewieLab\Game;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$value = (new Nissan())->run();
+$value = (new Game())->run();

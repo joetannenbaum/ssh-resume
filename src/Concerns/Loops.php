@@ -4,28 +4,41 @@ namespace Chewie\Concerns;
 
 trait Loops
 {
-    public array $components = [];
+    public array $loopables = [];
 
-    protected function registerComponent($component): void
+    protected int $sleepBetweenLoops = 50_000;
+
+    public function loopable(string $component)
     {
-        $this->components[$component] = new $component($this);
+        return $this->loopables[$component];
     }
 
-    public function component($component)
+    protected function registerLoopable(string $component, string $key = null): void
     {
-        return $this->components[$component];
+        $this->loopables[$key ?? $component] = new $component($this);
+    }
+
+    protected function clearRegisteredLoopables(): void
+    {
+        $this->loopables = [];
     }
 
     protected function loop($cb, int $sleepFor = 50_000)
     {
-        while (true) {
-            $cb();
+        $this->sleepBetweenLoops = $sleepFor;
 
-            foreach ($this->components as $component) {
+        while (true) {
+            $continue = $cb();
+
+            if ($continue === false) {
+                break;
+            }
+
+            foreach ($this->loopables as $component) {
                 $component->tick();
             }
 
-            usleep($sleepFor);
+            usleep($this->sleepBetweenLoops);
         }
     }
 }

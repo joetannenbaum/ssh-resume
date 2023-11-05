@@ -1,7 +1,7 @@
 <?php
 
-use ChewieLab\Nissan;
+use ChewieLab\Prong;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$value = (new Nissan())->run();
+(new Prong)->play();
