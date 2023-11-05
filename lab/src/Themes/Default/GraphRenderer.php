@@ -2,7 +2,7 @@
 
 namespace ChewieLab\Themes\Default;
 
-use Chewie\Graph;
+use ChewieLab\Graph;
 use Laravel\Prompts\Themes\Default\Renderer;
 
 class GraphRenderer extends Renderer

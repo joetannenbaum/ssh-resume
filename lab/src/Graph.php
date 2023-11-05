@@ -2,11 +2,18 @@
 
 namespace ChewieLab;
 
-use Chewie\Themes\Default\GraphRenderer;
+use Chewie\Concerns\CreatesAnAltScreen;
+use Chewie\KeyPressListener;
+use Chewie\RegistersThemes;
+use ChewieLab\Themes\Default\GraphRenderer;
+use Laravel\Prompts\Key;
 use Laravel\Prompts\Prompt;
 
 class Graph extends Prompt
 {
+    use RegistersThemes;
+    use CreatesAnAltScreen;
+
     public array $numbers;
 
     public array $nextNumbers;
@@ -15,16 +22,14 @@ class Graph extends Prompt
 
     public function __construct()
     {
-        static::$themes['default'][Graph::class] = GraphRenderer::class;
+        $this->registerTheme(GraphRenderer::class);
 
-        // tput smcup
-        static::output()->write("\e[?1049h");
+        $this->createAltScreen();
     }
 
     public function __destruct()
     {
-        // tput rmcup
-        static::output()->write("\e[?1049l");
+        $this->exitAltScreen();
     }
 
     public function graph()
@@ -34,6 +39,10 @@ class Graph extends Prompt
         while (true) {
             $this->generateNextNumbers();
             $this->incrementNumbers();
+
+            if (KeyPressListener::once() === Key::CTRL_C) {
+                $this->terminal()->exit();
+            }
 
             sleep(1);
         }
