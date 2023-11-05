@@ -2,7 +2,8 @@
 
 namespace ChewieLab\Themes\Default;
 
-use Chewie\Chat;
+use Chewie\Output\Lines;
+use ChewieLab\Chat;
 use Laravel\Prompts\Themes\Default\Concerns\DrawsBoxes;
 use Laravel\Prompts\Themes\Default\Concerns\DrawsScrollbars;
 use Laravel\Prompts\Themes\Default\Renderer;
@@ -23,11 +24,9 @@ class ChatRenderer extends Renderer
         $sidebar = $this->sidebar($chat);
         $chatWindow = $this->chatWindow($chat);
 
-        collect(explode(PHP_EOL, $sidebar))->zip(explode(PHP_EOL, $chatWindow))->each(function ($lines) {
-            [$sidebar, $chatWindow] = $lines;
+        $cols = collect([$sidebar, $chatWindow])->map(fn ($c) => explode(PHP_EOL, $c));
 
-            $this->line($sidebar . ' ' . $chatWindow);
-        });
+        Lines::fromColumns($cols)->alignNone()->spacing(1)->lines()->each(fn ($line) => $this->line($line));
 
         return $this;
     }

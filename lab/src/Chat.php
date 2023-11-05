@@ -3,7 +3,7 @@
 namespace ChewieLab;
 
 use Chewie\Output\NonBlockingConsoleOutput;
-use Chewie\Themes\Default\ChatRenderer;
+use ChewieLab\Themes\Default\ChatRenderer;
 use Laravel\Prompts\Concerns\TypedValue;
 use Laravel\Prompts\Key;
 use Laravel\Prompts\Prompt;
@@ -52,6 +52,12 @@ class Chat extends Prompt
         $username = text('What is your name?');
 
         $this->loadUsers($username);
+
+        foreach ([$this->chatPath, $this->usersPath] as $path) {
+            if (!file_exists($path)) {
+                file_put_contents($path, json_encode([]));
+            }
+        }
 
         if (!isset($this->user)) {
             $colors = ['red', 'green', 'yellow', 'blue', 'magenta'];
