@@ -6,7 +6,7 @@ A (future) TUI renderer based on Laravel Prompts.
 
 These labs are just little demos I've created to find patterns and test out ideas. Some of the code is good, some, not so much. Just my little playground.
 
-But you can run them on your own machine!
+You can browse all of them [here](./lab/). And you can run them on your own machine!
 
 ### Setup and Installation
 
