@@ -3,7 +3,9 @@
 namespace ChewieLab;
 
 use Chewie\Concerns\CreatesAnAltScreen;
-use Chewie\Themes\Default\DataTableRenderer;
+use Chewie\KeyPressListener;
+use Chewie\RegistersThemes;
+use ChewieLab\Themes\Default\DataTableRenderer;
 use Illuminate\Support\Collection;
 use Laravel\Prompts\Concerns\TypedValue;
 use Laravel\Prompts\Key;
@@ -42,12 +44,12 @@ class DataTable extends Prompt
 
         $this->listenForHotkeys();
 
-        // $this->createAltScreen();
+        $this->createAltScreen();
     }
 
     public function __destruct()
     {
-        // $this->exitAltScreen();
+        $this->exitAltScreen();
     }
 
     public function visible(): array

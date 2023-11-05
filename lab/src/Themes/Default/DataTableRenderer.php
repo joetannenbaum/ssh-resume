@@ -4,7 +4,7 @@ namespace ChewieLab\Themes\Default;
 
 use Chewie\Concerns\DrawsHotkeys;
 use Chewie\Concerns\DrawsTables;
-use Chewie\DataTable;
+use ChewieLab\DataTable;
 use Laravel\Prompts\Themes\Default\Renderer;
 use Symfony\Component\Console\Helper\TableCell;
 use Symfony\Component\Console\Helper\TableCellStyle;
