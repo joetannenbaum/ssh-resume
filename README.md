@@ -30,3 +30,11 @@ Video: https://twitter.com/joetannenbaum/status/1713277008233279827
 ```bash
 php lab/prong.php
 ```
+
+### Dashboard
+
+Video: https://twitter.com/joetannenbaum/status/1715170636769677438
+
+```bash
+php lab/dashboard.php
+```
