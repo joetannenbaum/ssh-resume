@@ -53,6 +53,7 @@ class Resume extends Prompt
 
     public function __destruct()
     {
+        exec('exit');
         $this->exitAltScreen();
     }
 
