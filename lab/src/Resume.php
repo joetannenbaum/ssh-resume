@@ -121,6 +121,7 @@ class Resume extends Prompt
         }
 
         if ($key === Key::CTRL_C) {
+            exec('exit');
             $this->terminal()->exit();
         }
     }
