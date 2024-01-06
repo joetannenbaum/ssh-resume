@@ -1,7 +1,10 @@
 <?php
 
-namespace ChewieLab;
+namespace ChewieLab\iPod;
 
+use Chewie\KeyPressListener;
+use ChewieLab\iPod;
+use ChewieLab\Spotify;
 use Illuminate\Support\Collection;
 use Laravel\Prompts\Key;
 

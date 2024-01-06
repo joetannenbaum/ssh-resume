@@ -1,7 +1,8 @@
 <?php
 
-namespace ChewieLab;
+namespace ChewieLab\iPod;
 
+use Chewie\KeyPressListener;
 use Laravel\Prompts\Key;
 
 class ImportingPhotos extends iPodScreen

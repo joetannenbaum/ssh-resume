@@ -3,11 +3,11 @@
 namespace ChewieLab\Themes\Default;
 
 use Chewie\Concerns\Aligns;
-use Chewie\ImportedPhotos;
-use Chewie\ImportingPhotos;
-use Chewie\ImportPhotosInfo;
-use Chewie\iPod;
-use Chewie\PlayerScreen;
+use ChewieLab\iPod\ImportedPhotos;
+use ChewieLab\iPod\ImportingPhotos;
+use ChewieLab\iPod\ImportPhotosInfo;
+use ChewieLab\iPod;
+use ChewieLab\iPod\PlayerScreen;
 use Illuminate\Support\Collection;
 use Laravel\Prompts\Themes\Default\Concerns\DrawsBoxes;
 use Laravel\Prompts\Themes\Default\Renderer;

@@ -2,6 +2,7 @@
 
 namespace ChewieLab;
 
+use Chewie\KeyPressListener;
 use Illuminate\Support\Collection;
 use Laravel\Prompts\Key;
 

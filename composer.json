@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "spatie/ray": "^1.39",
-        "tightenco/duster": "^2.4"
+        "tightenco/duster": "^2.7"
     },
     "autoload": {
         "psr-4": {

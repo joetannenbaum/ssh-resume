@@ -4,7 +4,12 @@ namespace ChewieLab;
 
 use Chewie\Concerns\CreatesAnAltScreen;
 use Chewie\RegistersThemes;
-use Chewie\Themes\Default\iPodRenderer;
+use ChewieLab\iPod\ImportedPhotos;
+use ChewieLab\iPod\ImportingPhotos;
+use ChewieLab\iPod\ImportPhotosInfo;
+use ChewieLab\iPod\ListPlaylistsScreen;
+use ChewieLab\iPod\iPodScreen;
+use ChewieLab\Themes\Default\iPodRenderer;
 use Illuminate\Support\Collection;
 use Laravel\Prompts\Prompt;
 
