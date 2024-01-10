@@ -21,31 +21,19 @@ class ResumeRenderer extends Renderer
     public function __invoke(Resume $prompt): string
     {
         $idealTextWidth = 80;
-        $prompt->height = $prompt->terminal()->lines() - 10;
-        $prompt->width = min($idealTextWidth + 20, $prompt->terminal()->cols() - 6);
-        $prompt->sidebarWidth = 18;
-        $prompt->maxTextWidth = min($prompt->width - $prompt->sidebarWidth - 8, $idealTextWidth);
+        $prompt->height = min($prompt->terminal()->lines() - 10, 40);
+        $prompt->width = min($idealTextWidth, $prompt->terminal()->cols() - 6);
+        $prompt->maxTextWidth = min($prompt->width - 8, $idealTextWidth);
 
         $table = $this->table([
             [
-                collect($prompt->navigation)->map(fn ($value) => $this->pad($value, $prompt->sidebarWidth - 5))->map(
-                    function ($value, $key) use ($prompt) {
-                        if ($key === $prompt->page) {
-                            return $this->bold($this->cyan($value));
-                        }
-
-                        return $value;
-                    }
-                )
-                    ->values()
-                    ->implode(PHP_EOL),
                 $this->renderContent($prompt),
             ],
         ]);
 
         $name = file_get_contents(__DIR__ . '/../../../../lab/resume/name.txt');
 
-        collect(explode(PHP_EOL, $name))->map(fn ($line) => $this->line($line));
+        collect(explode(PHP_EOL, $name))->map(fn ($line) => $this->line(' ' . $line));
 
         $this->newLine();
 
@@ -56,16 +44,30 @@ class ResumeRenderer extends Renderer
         ])->map(function ($link) use ($prompt) {
             $termWidth = $prompt->terminal()->cols() - 2;
 
-            if ($termWidth < 93) {
+            if ($termWidth < 92) {
                 return str_replace('https://', '', $link);
             }
 
             return $link;
         })->map(fn ($line) => $this->cyan($line))->implode($this->dim(' · '));
 
-        $this->line($links);
+        $this->line(' ' . $links);
 
-        $this->newLine();
+        $this->newLine(2);
+
+        $nav = collect($prompt->navigation)->map(
+            function ($value, $key) use ($prompt) {
+                if ($key === $prompt->page) {
+                    return $this->bold($this->underline($this->cyan($value)));
+                }
+
+                return $value;
+            }
+        )->map(fn ($value, $key) => str_repeat(' ', $key === 0 ? 1 : 4) . $value . str_repeat(' ', 4))
+            ->values()
+            ->implode($this->dim('/'));
+
+        $this->line($nav);
 
         $table->each(fn ($line) => $this->line($line));
 
@@ -77,7 +79,7 @@ class ResumeRenderer extends Renderer
 
         $this->newLine();
 
-        collect($this->hotkeys())->each(fn ($line) => $this->line($line));
+        collect($this->hotkeys())->each(fn ($line) => $this->line(' ' . $line));
 
         return $this;
     }
@@ -85,7 +87,7 @@ class ResumeRenderer extends Renderer
     protected function renderContent(Resume $prompt): string
     {
         $height = $prompt->height - 10;
-        $width = $prompt->width - $prompt->sidebarWidth;
+        $width = $prompt->width;
 
         $title = $prompt->navigation[$prompt->page];
 
@@ -334,7 +336,7 @@ class ResumeRenderer extends Renderer
             '',
             $this->wrapped('I\'m a firm believer that the skills I learned as an actor have made me a better developer. I\'m a great communicator, I\'m comfortable in front of a crowd, and I\'m able to think on my feet.'),
             '',
-            $this->wrapped('And I still love theater! My wife is an actor and most of my friends are in the arts at some level. Win win.'),
+            $this->wrapped('And I still love theater! My wife is an actor and most of my friends are in the arts in some way. Win win.'),
         ];
     }
 
