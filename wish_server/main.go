@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"unsafe"
 
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/ssh"
@@ -22,6 +23,11 @@ import (
 	"github.com/charmbracelet/wish/logging"
 	"github.com/creack/pty"
 )
+
+func setWinsize(f *os.File, w, h int) {
+	syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
+		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
+}
 
 func main() {
 
@@ -37,18 +43,23 @@ func main() {
 			comment.Middleware("Thanks for checking out my resume. Have a great day!"),
 			func(h ssh.Handler) ssh.Handler {
 				return func(s ssh.Session) {
-					ptyReq, _, isPty := s.Pty()
-
-					dir, _ := os.Getwd()
-					fmt.Println(dir)
+					ptyReq, winCh, isPty := s.Pty()
 
 					cmd := exec.Command("php", "lab/resume.php")
+
 					if isPty {
 						cmd.Env = append(cmd.Env, fmt.Sprintf("TERM=%s", ptyReq.Term))
 						f, err := pty.Start(cmd)
 						if err != nil {
 							panic(err)
 						}
+
+						go func() {
+							for win := range winCh {
+								setWinsize(f, win.Width, win.Height)
+							}
+						}()
+
 						go func() {
 							io.Copy(f, s) // stdin
 						}()
