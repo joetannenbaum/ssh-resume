@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -22,15 +23,15 @@ import (
 	"github.com/creack/pty"
 )
 
-const (
-	host = "127.0.0.1"
-	port = 23234
-)
-
 func main() {
 
+	var host = flag.String("host", "127.0.0.1", "Host address for SSH server to listen")
+	var port = flag.Int("port", 23234, "Port for SSH server to listen")
+
+	flag.Parse()
+
 	s, err := wish.NewServer(
-		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
+		wish.WithAddress(fmt.Sprintf("%s:%d", *host, *port)),
 		wish.WithHostKeyPath(".ssh/term_info_ed25519"),
 		wish.WithMiddleware(
 			comment.Middleware("Thanks for checking out my resume. Have a great day!"),
