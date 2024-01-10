@@ -2,3 +2,4 @@ vendor
 composer.lock
 lab/chat/*.json
 .ssh
+wish_server/.ssh
