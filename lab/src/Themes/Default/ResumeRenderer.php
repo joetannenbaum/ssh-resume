@@ -103,10 +103,6 @@ class ResumeRenderer extends Renderer
 
         $lines = $lines->map(fn ($line) => $this->pad($line, $width));
 
-        if ($prompt->focused === 'navigation') {
-            $lines = $lines->map(fn ($line) => $this->dim($line));
-        }
-
         $scrollPosition = min($prompt->scrollPosition, $lines->count() - $height);
 
         // TODO: Bad?

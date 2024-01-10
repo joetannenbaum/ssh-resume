@@ -26,15 +26,11 @@ class Resume extends Prompt
 
     public int $scrollPosition = 0;
 
-    public int $sidebarWidth = 0;
-
     public int $maxTextWidth = 0;
 
     public int $height = 0;
 
     public int $width = 0;
-
-    public string $focused = 'content';
 
     public array $navigation = [
         'Summary',
@@ -77,6 +73,6 @@ class Resume extends Prompt
 
     public function value(): mixed
     {
-        //
+        return null;
     }
 }
