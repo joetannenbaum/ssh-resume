@@ -37,14 +37,6 @@ class ResumeRenderer extends Renderer
                         return $value;
                     }
                 )
-                    ->map(
-                        fn ($value, $key) => $key === $prompt->selectedPage
-                            ? "> {$value}" : "  {$value}"
-                    )
-                    ->map(
-                        fn ($value) => $prompt->focused === 'content'
-                            ? $this->dim($value) : $value
-                    )
                     ->values()
                     ->implode(PHP_EOL),
                 $this->renderContent($prompt),
@@ -55,33 +47,33 @@ class ResumeRenderer extends Renderer
 
         collect(explode(PHP_EOL, $name))->map(fn ($line) => $this->line($line));
 
-        $this->hotkey('e', 'Email Me');
-        $this->hotkey('s', 'Site');
-        $this->hotkey('b', 'Blog');
-        $this->hotkey('g', 'GitHub');
-        $this->hotkey('t', 'Twitter');
-        $this->hotkey('l', 'LinkedIn');
-
         $this->newLine();
 
-        collect($this->hotkeys())->each(fn ($line) => $this->line($line));
+        $links = collect([
+            'https://blog.joe.codes',
+            'https://github.com/joetannenbaum',
+            'https://twitter.com/joetannenbaum',
+        ])->map(function ($link) use ($prompt) {
+            $termWidth = $prompt->terminal()->cols() - 2;
 
-        $this->clearHotkeys();
+            if ($termWidth < 93) {
+                return str_replace('https://', '', $link);
+            }
+
+            return $link;
+        })->map(fn ($line) => $this->cyan($line))->implode($this->dim(' · '));
+
+        $this->line($links);
 
         $this->newLine();
 
         $table->each(fn ($line) => $this->line($line));
 
-        if ($prompt->focused === 'navigation') {
-            $this->hotkey('↑ ↓', 'Navigate Sections');
-            $this->hotkey('Enter', 'Select Section');
-        } else {
-            $this->hotkey('↑ ↓', 'Scroll');
-            $this->hotkey('←', 'Previous Section', $prompt->page > 0);
-            $this->hotkey('→', 'Next Section', $prompt->page < count($prompt->navigation) - 1);
-        }
+        $this->hotkey('↑ ↓', 'Scroll');
+        $this->hotkey('←', 'Previous Section', $prompt->page > 0);
+        $this->hotkey('→', 'Next Section', $prompt->page < count($prompt->navigation) - 1);
 
-        $this->hotkey('Tab', 'Focus ' . ($prompt->focused === 'content' ? 'Navigation' : 'Content'));
+        $this->hotkey('q', 'Quit');
 
         $this->newLine();
 
@@ -142,6 +134,17 @@ class ResumeRenderer extends Renderer
             '',
             $this->project('Blip', 'https://ipblip.com', 'Built with Laravel + Inertia.js, Blip is a full IP-whitelisting toolkit including self-destructing firewalls, IP syncing, and scheduling. Integrates directly with DigitalOcean and AWS.'),
         ];
+    }
+
+    protected function renderLinks(Resume $prompt): array
+    {
+        return collect([
+            'https://joe.codes',
+            'https://blog.joe.codes',
+            'https://github.com/joetannenbaum',
+            'https://twitter.com/joetannenbaum',
+            'https://www.linkedin.com/in/joe-tannenbaum-27724221',
+        ])->map(fn ($link, $i) => ($i === 0 ? '' : PHP_EOL) . $this->cyan($link))->toArray();
     }
 
     protected function renderExperience(Resume $prompt): array
@@ -287,7 +290,6 @@ class ResumeRenderer extends Renderer
     protected function list(...$items): string
     {
         $bullet = ' · ';
-        // $bullet = ' - ';
 
         return collect($items)
             ->map(fn ($item) => $this->wrapped($bullet . $item))
@@ -299,19 +301,19 @@ class ResumeRenderer extends Renderer
     protected function job($title, $company, $duration, $description, $position = null): string
     {
         return collect([
-            $this->dim(match ($position) {
+            $this->cyan(match ($position) {
                 'first' => '┌─',
                 default => '├─',
             }) . ' ' . $this->cyan($this->bold($title)),
-            $this->dim('│'),
-            $this->dim('│  ') . $this->bold($company),
-            $this->dim('│  ') . $this->dim($duration),
-            $this->dim('│'),
+            $this->cyan('│'),
+            $this->cyan('│  ') . $this->bold($company),
+            $this->cyan('│  ') . $this->dim($duration),
+            $this->cyan('│'),
             collect(explode(PHP_EOL, implode(PHP_EOL, $description)))
-                ->map(fn ($line) => $this->dim('│  ') . $line)
+                ->map(fn ($line) => $this->cyan('│  ') . $line)
                 ->implode(PHP_EOL),
-            $this->dim('│'),
-            $this->dim($position === 'last' ? '└─' : '│'),
+            $this->cyan('│'),
+            $this->cyan($position === 'last' ? '└─' : '│'),
         ])->implode(PHP_EOL);
     }
 
@@ -357,7 +359,6 @@ class ResumeRenderer extends Renderer
             'PestPHP',
             'PHPUnit',
             'React Native',
-            'WordPress',
             '',
             $this->header('Databases'),
             'MySQL',
@@ -367,20 +368,13 @@ class ResumeRenderer extends Renderer
             'AWS',
             'Vite',
             'Jenkins',
-            'Gulp',
+            'GitHub Actions',
         ];
     }
 
     protected function renderInterests(Resume $resume): array
     {
         return [];
-    }
-
-    protected function renderReferences(Resume $resume): array
-    {
-        return [
-            'References available upon request.',
-        ];
     }
 
     protected function wrapped(string $text): string
@@ -424,3 +418,5 @@ class ResumeRenderer extends Renderer
 // standard
 // sub zero smush r
 // tmplr
+// shimrod
+// thin

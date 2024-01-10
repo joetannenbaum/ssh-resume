@@ -38,10 +38,10 @@ class Resume extends Prompt
 
     public array $navigation = [
         'Summary',
+        'Links',
         'Experience',
         'Skills',
         'Education',
-        'References',
     ];
 
     public function __construct()
@@ -53,12 +53,12 @@ class Resume extends Prompt
 
     public function __destruct()
     {
-        exec('exit');
         $this->exitAltScreen();
     }
 
     public function run()
     {
+        ray('run');
         $this->setup($this->showResume(...));
     }
 
@@ -69,6 +69,7 @@ class Resume extends Prompt
 
     protected function showResume()
     {
+        ray('showResume');
         $this->loop($this->runLoop(...));
     }
 
@@ -79,49 +80,28 @@ class Resume extends Prompt
         $key = KeyPressListener::once();
 
         match ($key) {
-            'e' => exec('open mailto:joe@joe.codes'),
-            's' => exec('open https://joe.codes'),
-            'b' => exec('open https://blog.joe.codes'),
-            'g' => exec('open https://github.com/joetannenbaum'),
-            'l' => exec('open https://www.linkedin.com/in/joe-tannenbaum-27724221'),
-            't' => exec('open https://twitter.com/joetannenbaum'),
+            'q' => $this->terminal()->exit(),
             Key::TAB => $this->focused = $this->focused === 'content' ? 'navigation' : 'content',
             default => null,
         };
 
-        if ($this->focused === 'navigation') {
-            match ($key) {
-                Key::UP, Key::UP_ARROW, Key::LEFT, Key::LEFT_ARROW => $this->selectedPage = max(0, $this->selectedPage - 1),
-                Key::DOWN, Key::DOWN_ARROW, Key::RIGHT, Key::RIGHT_ARROW => $this->selectedPage = min(count($this->navigation) - 1, $this->selectedPage + 1),
-                default => null,
-            };
+        match ($key) {
+            Key::UP, Key::UP_ARROW => $this->scrollPosition = max(0, $this->scrollPosition - 2),
+            Key::DOWN, Key::DOWN_ARROW => $this->scrollPosition += 2,
+            default => null,
+        };
 
-            if ($key === Key::ENTER) {
-                $this->page = $this->selectedPage;
-                $this->focused = 'content';
-            }
+        if (in_array($key, [Key::RIGHT, Key::RIGHT_ARROW])) {
+            $this->page = $this->selectedPage = min(count($this->navigation) - 1, $this->page + 1);
+            $this->scrollPosition = 0;
         }
 
-        if ($this->focused === 'content') {
-            match ($key) {
-                Key::UP, Key::UP_ARROW => $this->scrollPosition = max(0, $this->scrollPosition - 1),
-                Key::DOWN, Key::DOWN_ARROW => $this->scrollPosition += 1,
-                default => null,
-            };
-
-            if (in_array($key, [Key::RIGHT, Key::RIGHT_ARROW])) {
-                $this->page = $this->selectedPage = min(count($this->navigation) - 1, $this->page + 1);
-                $this->scrollPosition = 0;
-            }
-
-            if (in_array($key, [Key::LEFT, Key::LEFT_ARROW])) {
-                $this->page = $this->selectedPage = max(0, $this->page - 1);
-                $this->scrollPosition = 0;
-            }
+        if (in_array($key, [Key::LEFT, Key::LEFT_ARROW])) {
+            $this->page = $this->selectedPage = max(0, $this->page - 1);
+            $this->scrollPosition = 0;
         }
 
         if ($key === Key::CTRL_C) {
-            exec('exit');
             $this->terminal()->exit();
         }
     }
