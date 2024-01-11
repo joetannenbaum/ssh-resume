@@ -143,7 +143,7 @@ class ResumeRenderer extends Renderer
             'https://github.com/joetannenbaum',
             'https://twitter.com/joetannenbaum',
             'https://www.linkedin.com/in/joe-tannenbaum-27724221',
-        ])->map(fn ($link, $i) => ($i === 0 ? '' : PHP_EOL) . $this->{$prompt->color}($link))->toArray();
+        ])->map(fn ($link, $i) => ($i === 0 ? '' : PHP_EOL) . $this->underline($this->{$prompt->color}($link)))->toArray();
     }
 
     protected function renderExperience(Resume $prompt): array
