@@ -49,7 +49,7 @@ class ResumeRenderer extends Renderer
             }
 
             return $link;
-        })->map(fn ($line) => $this->cyan($line))->implode($this->dim(' · '));
+        })->map(fn ($line) => $this->{$prompt->color}($line))->implode($this->dim(' · '));
 
         $this->line(' ' . $links);
 
@@ -58,7 +58,7 @@ class ResumeRenderer extends Renderer
         $nav = collect($prompt->navigation)->map(
             function ($value, $key) use ($prompt) {
                 if ($key === $prompt->page) {
-                    return $this->bold($this->underline($this->cyan($value)));
+                    return $this->bold($this->underline($this->{$prompt->color}($value)));
                 }
 
                 return $value;
@@ -116,6 +116,7 @@ class ResumeRenderer extends Renderer
             height: $height,
             total: $lines->count(),
             width: $width,
+            color: $prompt->color,
         )->implode(PHP_EOL);
     }
 
@@ -142,7 +143,7 @@ class ResumeRenderer extends Renderer
             'https://github.com/joetannenbaum',
             'https://twitter.com/joetannenbaum',
             'https://www.linkedin.com/in/joe-tannenbaum-27724221',
-        ])->map(fn ($link, $i) => ($i === 0 ? '' : PHP_EOL) . $this->cyan($link))->toArray();
+        ])->map(fn ($link, $i) => ($i === 0 ? '' : PHP_EOL) . $this->{$prompt->color}($link))->toArray();
     }
 
     protected function renderExperience(Resume $prompt): array
@@ -280,6 +281,20 @@ class ResumeRenderer extends Renderer
                         'Empowered business entities to add and edit website content themselves',
                     ),
                 ],
+            ),
+
+            $this->job(
+                'Easter Egg',
+                'SSH Resume',
+                'Right Here - Right Now',
+                [
+                    $this->list(
+                        'Easter egg? Is that... is that a job?',
+                        'Easter egg isn\'t a job.',
+                        'But you got all the way down here.',
+                        'So you can press ' . $this->{$prompt->color}($this->bold('c')) . ' to change the primary color of the resume.',
+                    ),
+                ],
                 'last',
             ),
         ];
@@ -299,19 +314,19 @@ class ResumeRenderer extends Renderer
     protected function job($title, $company, $duration, $description, $position = null): string
     {
         return collect([
-            $this->cyan(match ($position) {
+            $this->{$this->prompt->color}(match ($position) {
                 'first' => '┌─',
                 default => '├─',
-            }) . ' ' . $this->cyan($this->bold($title)),
-            $this->cyan('│'),
-            $this->cyan('│  ') . $this->bold($company),
-            $this->cyan('│  ') . $this->dim($duration),
-            $this->cyan('│'),
+            }) . ' ' . $this->{$this->prompt->color}($this->bold($title)),
+            $this->{$this->prompt->color}('│'),
+            $this->{$this->prompt->color}('│  ') . $this->bold($company),
+            $this->{$this->prompt->color}('│  ') . $this->dim($duration),
+            $this->{$this->prompt->color}('│'),
             collect(explode(PHP_EOL, implode(PHP_EOL, $description)))
-                ->map(fn ($line) => $this->cyan('│  ') . $line)
+                ->map(fn ($line) => $this->{$this->prompt->color}('│  ') . $line)
                 ->implode(PHP_EOL),
-            $this->cyan('│'),
-            $this->cyan($position === 'last' ? '└─' : '│'),
+            $this->{$this->prompt->color}('│'),
+            $this->{$this->prompt->color}($position === 'last' ? '└─' : '│'),
         ])->implode(PHP_EOL);
     }
 
@@ -388,8 +403,8 @@ class ResumeRenderer extends Renderer
     protected function header(string $text): string
     {
         return collect([
-            $this->cyan($this->bold($text)),
-            $this->cyan($this->bold(str_repeat('-', strlen($text)))),
+            $this->{$this->prompt->color}($this->bold($text)),
+            $this->{$this->prompt->color}($this->bold(str_repeat('-', strlen($text)))),
         ])->implode(PHP_EOL);
     }
 
@@ -401,7 +416,7 @@ class ResumeRenderer extends Renderer
     protected function project(string $name, string $url, string $description): string
     {
         return collect([
-            $this->bold($name) . ' - ' . $this->cyan($url),
+            $this->bold($name) . ' - ' . $this->{$this->prompt->color}($url),
             '',
             $this->wrapped($description),
         ])->implode(PHP_EOL);

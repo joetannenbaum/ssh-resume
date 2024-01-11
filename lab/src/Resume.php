@@ -32,6 +32,19 @@ class Resume extends Prompt
 
     public int $width = 0;
 
+    public int $colorIndex = 0;
+
+    public string $color = 'cyan';
+
+    public array $colors = [
+        'cyan',
+        'red',
+        'green',
+        'yellow',
+        'blue',
+        'magenta',
+    ];
+
     public array $navigation = [
         'Summary',
         'Links',
@@ -57,6 +70,15 @@ class Resume extends Prompt
             ->on([Key::LEFT, Key::LEFT_ARROW], function () {
                 $this->page = $this->selectedPage = max(0, $this->page - 1);
                 $this->scrollPosition = 0;
+            })
+            ->on('c', function () {
+                $this->colorIndex++;
+
+                if ($this->colorIndex >= count($this->colors)) {
+                    $this->colorIndex = 0;
+                }
+
+                $this->color = $this->colors[$this->colorIndex];
             })
             ->listen();
     }
