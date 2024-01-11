@@ -32,6 +32,8 @@ class Resume extends Prompt
 
     public int $width = 0;
 
+    protected bool $easterEggLogged = false;
+
     public int $colorIndex = 0;
 
     public string $color = 'cyan';
@@ -79,8 +81,28 @@ class Resume extends Prompt
                 }
 
                 $this->color = $this->colors[$this->colorIndex];
+                $this->logEasterEgg();
             })
             ->listen();
+    }
+
+    public function logEasterEgg()
+    {
+        if ($this->easterEggLogged) {
+            return;
+        }
+
+        $this->easterEggLogged = true;
+
+        file_put_contents(
+            __DIR__ . '/../../resume-ssh-log/easter-egg.log',
+            sprintf(
+                "[%s] %s\n",
+                date('Y-m-d H:i:s'),
+                $_SERVER['REMOTE_USER'] ?? 'unknown',
+            ),
+            FILE_APPEND,
+        );
     }
 
     public function __destruct()
