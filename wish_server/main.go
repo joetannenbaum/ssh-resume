@@ -20,7 +20,6 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	"github.com/charmbracelet/wish/logging"
 	"github.com/creack/pty"
 	"github.com/muesli/termenv"
 )
@@ -150,8 +149,30 @@ func main() {
 
 					h(s)
 				}
+			}, func(sh ssh.Handler) ssh.Handler {
+				return func(s ssh.Session) {
+					ct := time.Now()
+					hpk := s.PublicKey() != nil
+					pty, _, _ := s.Pty()
+					log.Infof(
+						"%s connect %s %v %v %s %v %v",
+						s.User(),
+						s.RemoteAddr().String(),
+						hpk,
+						s.Command(),
+						pty.Term,
+						pty.Window.Width,
+						pty.Window.Height,
+					)
+					sh(s)
+					log.Infof(
+						"%s disconnect %s\n",
+						s.RemoteAddr().String(),
+						time.Since(ct),
+					)
+				}
 			},
-			logging.Middleware(),
+			// logging.Middleware(),
 		),
 	)
 	if err != nil {
